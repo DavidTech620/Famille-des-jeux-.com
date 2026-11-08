@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roue de la chance — Famille des Jeux</title>
+<meta name="description" content="Inscris-toi, tourne la roue et envoie ton résultat aux organisateurs. Famille des jeux, plus qu'un jeu, une famille.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Roue de la chance — Famille des Jeux">
+<meta property="og:description" content="Inscris-toi, tourne la roue et envoie ton résultat aux organisateurs. Famille des jeux, plus qu'un jeu, une famille.">
+<meta name="theme-color" content="#2F7FE0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Bungee&display=swap">
+<style>
+[hidden]{display:none!important}
+:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+/* Layout: une seule colonne centrée, un écran à la fois (inscription, règles, roue, message), phrase de la communauté toujours en bas. */
+:root{
+  --bg:#2F7FE0; --ink:#ffffff; --ink-soft:#E3EEFC;
+  --panel:#ffffff; --panel-ink:#0B2F63; --panel-hint:#51607A;
+  --btn:#0B2F63; --btn-ink:#ffffff; --btn2:transparent; --btn2-ink:#ffffff; --btn2-line:#ffffff;
+  --slice-a:#CFE4FB; --slice-a-ink:#0B2F63; --slice-b:#0B2F63; --slice-b-ink:#ffffff;
+  --line:rgba(255,255,255,.5); --err:#FFE08A;
+  --font-text:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --font-num:"Bungee","Arial Black",Impact,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E2750; --ink:#ffffff; --ink-soft:#B9D0F2;
+    --panel:#E8F0FC; --panel-ink:#0B2F63; --panel-hint:#4A5A75;
+    --btn:#CFE4FB; --btn-ink:#0B2F63; --btn2:transparent; --btn2-ink:#CFE4FB; --btn2-line:#CFE4FB;
+    --slice-a:#CFE4FB; --slice-a-ink:#0B2F63; --slice-b:#1E5FB8; --slice-b-ink:#ffffff;
+    --line:rgba(207,228,251,.45); --err:#FFE08A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E2750; --ink:#ffffff; --ink-soft:#B9D0F2;
+  --panel:#E8F0FC; --panel-ink:#0B2F63; --panel-hint:#4A5A75;
+  --btn:#CFE4FB; --btn-ink:#0B2F63; --btn2:transparent; --btn2-ink:#CFE4FB; --btn2-line:#CFE4FB;
+  --slice-a:#CFE4FB; --slice-a-ink:#0B2F63; --slice-b:#1E5FB8; --slice-b-ink:#ffffff;
+  --line:rgba(207,228,251,.45); --err:#FFE08A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-text); font-size:16px; line-height:1.45;
+  padding-block:24px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap{max-width:420px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center}
+.screen{width:100%; display:flex; flex-direction:column; align-items:center; gap:16px}
+h1{font-size:34px; font-weight:600; line-height:1.1; margin:0; text-wrap:balance}
+h2{font-size:22px; font-weight:500; line-height:1.2; margin:0; text-wrap:balance}
+h1:focus,h2:focus{outline:none}
+p{margin:0}
+.soft{color:var(--ink-soft)}
+.small{font-size:14px}
+.step{font-size:14px; color:var(--ink-soft); letter-spacing:.02em}
+.fields{width:100%; display:flex; flex-direction:column; gap:14px; text-align:left}
+.field{display:flex; flex-direction:column; gap:6px}
+label{font-size:15px; font-weight:500}
+input[type="text"], input[type="tel"]{
+  width:100%; font:inherit; font-size:18px; padding:13px 14px; border-radius:10px;
+  border:2px solid transparent; background:var(--panel); color:var(--panel-ink);
+}
+input::placeholder{color:var(--panel-hint)}
+.btn{
+  display:block; width:100%; font:inherit; font-size:18px; font-weight:600; text-align:center; text-decoration:none;
+  padding:14px 16px; border-radius:10px; border:2px solid var(--btn); background:var(--btn); color:var(--btn-ink); cursor:pointer;
+}
+.btn.alt{background:var(--btn2); color:var(--btn2-ink); border-color:var(--btn2-line)}
+.btn[disabled]{opacity:.55; cursor:default}
+:focus-visible{outline:3px solid var(--ink); outline-offset:3px}
+.err{color:var(--err); font-size:15px; min-height:1.4em; width:100%; text-align:left}
+.card{width:100%; background:var(--panel); color:var(--panel-ink); border-radius:12px; padding:16px}
+.rules{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:12px; text-align:left; font-size:16px}
+.rules li::marker{font-family:var(--font-num); font-size:14px}
+.wheel-box{position:relative; width:min(280px,100%); aspect-ratio:1/1; margin-top:14px}
+.wheel-box svg{display:block; width:100%; height:100%}
+#wheel{transform:rotate(0deg); transition:transform 4.6s cubic-bezier(.12,.62,.08,1); will-change:transform}
+.pointer{position:absolute; top:-14px; left:50%; width:0; height:0; margin-left:-12px; border-left:12px solid transparent; border-right:12px solid transparent; border-top:24px solid var(--ink); z-index:2}
+.sa{fill:var(--slice-a)} .sb{fill:var(--slice-b)}
+.ta{fill:var(--slice-a-ink)} .tb{fill:var(--slice-b-ink)}
+.ring{fill:none; stroke:var(--ink); stroke-width:2}
+.hub{fill:var(--ink)}
+.nums{font-family:var(--font-num); font-size:12px; text-anchor:middle; dominant-baseline:central}
+.big{
+  width:112px; height:112px; border-radius:50%; background:var(--slice-a); color:var(--slice-a-ink);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-num); font-size:56px; line-height:1;
+}
+.msg{
+  width:100%; min-height:210px; resize:none; font:inherit; font-size:15px; line-height:1.5; text-align:left;
+  padding:12px 14px; border-radius:10px; border:2px solid transparent; background:var(--panel); color:var(--panel-ink);
+}
+.stack{width:100%; display:flex; flex-direction:column; gap:10px}
+.status{min-height:1.4em; font-size:15px}
+.timer{display:flex; align-items:baseline; justify-content:center; gap:8px; color:var(--ink)}
+.tleft{font-family:var(--font-num); font-size:36px; line-height:1; min-width:2ch; text-align:right}
+.unit{font-size:15px; color:var(--ink-soft)}
+.timer.low .tleft{color:var(--err)}
+.foot{width:100%; border-top:1px solid var(--line); padding-top:12px; font-size:14px; color:var(--ink-soft); text-wrap:balance}
+@media (prefers-reduced-motion: reduce){ #wheel{transition-duration:.6s} }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section id="s-start" class="screen" aria-labelledby="t-start">
+  <p class="step">Étape 1 sur 4 · Inscription</p>
+  <h1 id="t-start" tabindex="-1">Famille des Jeux</h1>
+  <p class="soft">Roue de la chance</p>
+  <form id="form" class="fields" novalidate>
+    <div class="field">
+      <label for="name">Ton nom</label>
+      <input id="name" type="text" maxlength="40" autocomplete="name" placeholder="Prénom et nom">
+    </div>
+    <div class="field">
+      <label for="phone">Ton numéro WhatsApp</label>
+      <input id="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="+224 6XX XX XX XX">
+    </div>
+    <div class="field">
+      <label for="group">Ton groupe</label>
+      <input id="group" type="text" maxlength="30" placeholder="Nom de ton groupe">
+    </div>
+    <p id="err" class="err" role="alert"></p>
+    <button id="go" class="btn" type="submit">S'inscrire</button>
+  </form>
+</section>
+
+<section id="s-rules" class="screen" aria-labelledby="t-rules" hidden>
+  <p class="step">Étape 2 sur 4 · Règles</p>
+  <h2 id="t-rules" tabindex="-1">Avant de jouer, <span id="who1"></span></h2>
+  <div class="card">
+    <ol class="rules">
+      <li>Tu as <strong>15 secondes</strong> pour tourner la roue. Passé ce délai, elle tourne toute seule.</li>
+      <li>Tu n'as <strong>qu'un seul essai</strong>.</li>
+      <li>La roue te donne un numéro de 1 à 8. Les organisateurs te communiquent ensuite ton bonus.</li>
+      <li>À la fin, envoie le message aux organisateurs sur WhatsApp, <strong>sans le modifier</strong>. Un message changé est refusé.</li>
+    </ol>
+  </div>
+  <button id="ready" class="btn" type="button">J'ai compris, je joue</button>
+</section>
+
+<section id="s-game" class="screen" aria-labelledby="t-game" hidden>
+  <p class="step">Étape 3 sur 4 · La roue</p>
+  <h2 id="t-game" tabindex="-1">Tourne la roue, <span id="who"></span></h2>
+  <div id="timer" class="timer" role="timer" aria-label="Temps restant">
+    <span id="tleft" class="tleft">15</span><span class="unit">secondes</span>
+  </div>
+  <div class="wheel-box">
+    <div class="pointer" aria-hidden="true"></div>
+    <svg id="wheel" viewBox="0 0 120 120" role="img" aria-label="Roue numérotée de 1 à 8">
+      <path class="sa" d="M60 60 L60 4 A56 56 0 0 1 99.6 20.4 Z"/>
+      <path class="sb" d="M60 60 L99.6 20.4 A56 56 0 0 1 116 60 Z"/>
+      <path class="sa" d="M60 60 L116 60 A56 56 0 0 1 99.6 99.6 Z"/>
+      <path class="sb" d="M60 60 L99.6 99.6 A56 56 0 0 1 60 116 Z"/>
+      <path class="sa" d="M60 60 L60 116 A56 56 0 0 1 20.4 99.6 Z"/>
+      <path class="sb" d="M60 60 L20.4 99.6 A56 56 0 0 1 4 60 Z"/>
+      <path class="sa" d="M60 60 L4 60 A56 56 0 0 1 20.4 20.4 Z"/>
+      <path class="sb" d="M60 60 L20.4 20.4 A56 56 0 0 1 60 4 Z"/>
+      <circle class="ring" cx="60" cy="60" r="56"/>
+      <g class="nums">
+        <text class="ta" x="73.8" y="26.7" transform="rotate(22.5 73.8 26.7)">1</text>
+        <text class="tb" x="93.3" y="46.2" transform="rotate(67.5 93.3 46.2)">2</text>
+        <text class="ta" x="93.3" y="73.8" transform="rotate(112.5 93.3 73.8)">3</text>
+        <text class="tb" x="73.8" y="93.3" transform="rotate(157.5 73.8 93.3)">4</text>
+        <text class="ta" x="46.2" y="93.3" transform="rotate(202.5 46.2 93.3)">5</text>
+        <text class="tb" x="26.7" y="73.8" transform="rotate(247.5 26.7 73.8)">6</text>
+        <text class="ta" x="26.7" y="46.2" transform="rotate(292.5 26.7 46.2)">7</text>
+        <text class="tb" x="46.2" y="26.7" transform="rotate(337.5 46.2 26.7)">8</text>
+      </g>
+      <circle class="hub" cx="60" cy="60" r="6"/>
+    </svg>
+  </div>
+  <button id="spin" class="btn" type="button">Tourner la roue</button>
+  <p class="small soft">Un seul essai par joueur.</p>
+</section>
+
+<section id="s-result" class="screen" aria-labelledby="t-result" hidden>
+  <p class="step">Étape 4 sur 4 · Envoi</p>
+  <h2 id="t-result" tabindex="-1">Ton numéro est le</h2>
+  <div id="num" class="big" aria-live="polite">0</div>
+  <p class="soft">Les organisateurs te communiqueront ton bonus.</p>
+  <p><strong>Dernière étape :</strong> envoie ce message aux organisateurs pour valider ton résultat, sans le modifier.</p>
+  <label for="msg" style="align-self:flex-start">Ton message</label>
+  <textarea id="msg" class="msg" readonly></textarea>
+  <div class="stack">
+    <a id="wa" class="btn" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>
+    <a id="wa2" class="btn alt" href="#" target="_blank" rel="noopener">Si ça ne marche pas, essayer autrement</a>
+    <button id="copy" class="btn alt" type="button">Copier le message</button>
+  </div>
+  <p id="status" class="status" role="status"></p>
+  <p class="small soft">Dernier recours : copie le message, ouvre WhatsApp et envoie-le au <strong>+224 613 81 82 61</strong>.</p>
+  <p class="small soft">Le jeu est verrouillé : un seul essai par joueur.</p>
+</section>
+
+<p class="foot">Famille des jeux, plus qu'un jeu, une famille</p>
+
+</main>
+
+<script>
+(function(){
+  var N = 8, STEP = 360 / N, KEY = "fdj-roue-v2", LIMIT = 15, ORGANIZER = "224613818261";
+  var $ = function(id){ return document.getElementById(id); };
+  var sStart = $("s-start"), sRules = $("s-rules"), sGame = $("s-game"), sResult = $("s-result");
+  var formEl = $("form"), nameEl = $("name"), phoneEl = $("phone"), groupEl = $("group"), errEl = $("err");
+  var who1 = $("who1"), who = $("who");
+  var wheel = $("wheel"), spinBtn = $("spin");
+  var numEl = $("num"), msgEl = $("msg"), waEl = $("wa"), copyBtn = $("copy"), statusEl = $("status");
+  var timerEl = $("timer"), tleftEl = $("tleft");
+  var profile = null, spinning = false, tick = null;
+
+  function show(el){
+    [sStart, sRules, sGame, sResult].forEach(function(s){ s.hidden = (s !== el); });
+    var h = el.querySelector("h1, h2");
+    if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+  }
+
+  var SALT = "fdj-bleu-2026-k9X2";
+  function cyrb53(str, seed){
+    var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  }
+  function makeCode(name, phone, group, number, dateStr){
+    var payload = SALT + "|" + name.toLowerCase().replace(/\s+/g, "") + "|" + phone.replace(/\D/g, "") + "|" + group.toLowerCase().replace(/\s+/g, "") + "|" + number + "|" + dateStr.replace(/\D/g, "");
+    return cyrb53(payload, 7).toString(36).toUpperCase().slice(-6);
+  }
+
+  function formatDate(iso){
+    try {
+      return new Date(iso).toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" });
+    } catch (e) { return iso; }
+  }
+
+  function showResult(r, already){
+    numEl.textContent = String(r.number);
+    var dateStr = formatDate(r.at);
+    var text = "Famille des Jeux - Roue de la chance" +
+      "\nJoueur : " + r.name +
+      "\nWhatsApp : " + r.phone +
+      "\nGroupe : " + r.group +
+      "\nNuméro : " + r.number +
+      "\nDate : " + dateStr +
+      "\nCode : " + makeCode(r.name, r.phone, r.group, r.number, dateStr);
+    msgEl.value = text;
+    waEl.href = "https://wa.me/" + ORGANIZER + "?text=" + encodeURIComponent(text);
+    $("wa2").href = "https://api.whatsapp.com/send?phone=" + ORGANIZER + "&text=" + encodeURIComponent(text);
+    statusEl.textContent = already ? "Tu as déjà joué sur cet appareil." : "";
+    show(sResult);
+  }
+
+  function save(r){
+    try { localStorage.setItem(KEY, JSON.stringify(r)); } catch (e) {}
+  }
+
+  function load(){
+    try {
+      var r = JSON.parse(localStorage.getItem(KEY));
+      if (r && typeof r.number === "number" && typeof r.name === "string" && typeof r.phone === "string" && typeof r.group === "string" && r.at) return r;
+    } catch (e) {}
+    return null;
+  }
+
+  function stopTimer(){
+    if (tick) { window.clearInterval(tick); tick = null; }
+  }
+  function startTimer(){
+    stopTimer();
+    var end = Date.now() + LIMIT * 1000;
+    tleftEl.textContent = String(LIMIT);
+    timerEl.classList.remove("low");
+    tick = window.setInterval(function(){
+      var left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+      tleftEl.textContent = String(left);
+      timerEl.classList.toggle("low", left <= 5);
+      if (left <= 0) {
+        stopTimer();
+        spinBtn.click();
+      }
+    }, 250);
+  }
+
+  function fail(msg, field){
+    errEl.textContent = msg;
+    field.focus();
+  }
+
+  formEl.addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = nameEl.value.trim().replace(/\s+/g, " ");
+    var phone = phoneEl.value.replace(/[\s().-]/g, "");
+    var group = groupEl.value.trim().replace(/\s+/g, " ");
+    if (name.length < 2) { fail("Écris ton nom.", nameEl); return; }
+    if (!/^\+?\d{8,15}$/.test(phone)) { fail("Écris ton numéro WhatsApp avec l'indicatif, par exemple +224 6XX XX XX XX.", phoneEl); return; }
+    if (group.length < 1) { fail("Écris le nom de ton groupe.", groupEl); return; }
+    errEl.textContent = "";
+    profile = { name: name, phone: phone, group: group };
+    who1.textContent = name;
+    who.textContent = name;
+    var done = load();
+    if (done) { showResult(done, true); return; }
+    show(sRules);
+  });
+  [nameEl, phoneEl, groupEl].forEach(function(i){
+    i.addEventListener("input", function(){ errEl.textContent = ""; });
+  });
+
+  $("ready").addEventListener("click", function(){
+    show(sGame);
+    startTimer();
+  });
+
+  function draw(){
+    var buf = new Uint32Array(1);
+    window.crypto.getRandomValues(buf);
+    return buf[0] % N;
+  }
+
+  spinBtn.addEventListener("click", function(){
+    if (spinning || !profile) return;
+    var done = load();
+    if (done) { stopTimer(); showResult(done, true); return; }
+    stopTimer();
+    spinning = true;
+    spinBtn.disabled = true;
+    var k = draw();
+    var jitter = (Math.random() - 0.5) * STEP * 0.6;
+    var turns = 5 + Math.floor(Math.random() * 3);
+    var target = turns * 360 - ((k + 0.5) * STEP) + jitter;
+    var finished = false;
+    var finish = function(){
+      if (finished) return;
+      finished = true;
+      var r = { name: profile.name, phone: profile.phone, group: profile.group, number: k + 1, at: new Date().toISOString() };
+      save(r);
+      showResult(r, false);
+      spinning = false;
+    };
+    wheel.addEventListener("transitionend", finish, { once: true });
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(finish, reduce ? 900 : 5200);
+    wheel.style.transform = "rotate(" + target + "deg)";
+  });
+
+  copyBtn.addEventListener("click", function(){
+    var fallback = function(){
+      msgEl.focus();
+      msgEl.select();
+      try { msgEl.setSelectionRange(0, msgEl.value.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      statusEl.textContent = ok
+        ? "Message copié. Colle-le dans WhatsApp."
+        : "Appuie longtemps sur le texte, choisis « Tout sélectionner » puis « Copier ».";
+    };
+    try {
+      navigator.clipboard.writeText(msgEl.value).then(function(){
+        statusEl.textContent = "Message copié. Colle-le dans WhatsApp.";
+      }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  var saved = load();
+  if (saved) showResult(saved, true);
+})();
+</script>
+</body>
+</html>
